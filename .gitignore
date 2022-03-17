@@ -1,3 +1,4 @@
 node_modules
 playground
-src/config
+src/config/dev.env
+src/config/test.env

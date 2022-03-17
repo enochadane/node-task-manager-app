@@ -2,10 +2,10 @@
   "name": "task-manager",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "env-cmd -f ./src/config/dev.env nodemon src/index.js",
+    "start": "node src/server.js",
+    "dev": "env-cmd -f ./src/config/dev.env nodemon src/server.js",
     "test": "env-cmd -f ./src/config/test.env jest --watch --runInBand"
   },
   "jest": {
