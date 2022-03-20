@@ -1,10 +1,11 @@
-const sgMail = require('@sendgrid/mail')
+import sgMail from '@sendgrid/mail'
+import configs from '../../config/config'
 
-const sendGridAPIKey = process.env.SEND_GRID_API_KEY
+const sendGridAPIKey: string = configs.SEND_GRID_API_KEY
 
 sgMail.setApiKey(sendGridAPIKey)
 
-const sendWelcomeEmail = (email, name) => {
+const sendWelcomeEmail = (email: string, name: String) => {
     sgMail.send({
         from: 'henaadane@gmail.com',
         to: email,
@@ -23,7 +24,7 @@ const sendCancelationEmail = (email, name) => {
     })
 }
 
-module.exports = {
+export {
     sendWelcomeEmail,
     sendCancelationEmail
 }
