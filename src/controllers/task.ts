@@ -1,31 +1,39 @@
-import Task from "../models/task";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 const getTasks = async (req, res) => {
-  let match: {
-    completed: Boolean;
-  };
-  const sort = {};
+  let completed: boolean;
+  let sort = {};
 
   if (req.query.completed) {
-    match.completed = req.query.completed === "true";
+    completed = req.query.completed === "true";
   }
 
   if (req.query.sortBy) {
     const parts = req.query.sortBy.split(":");
-    sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
+    sort[parts[0]] = parts[1];
   }
 
   try {
-    await req.user.populate({
-      path: "tasks",
-      match,
-      options: {
-        limit: parseInt(req.query.limit),
-        skip: parseInt(req.query.skip),
-        sort,
+    const tasks = await prisma.tasks.findMany({
+      where: {
+        owner: req.user.id,
+        completed,
       },
+      include: {
+        user: {
+          select: {
+            name: true,
+            age: true,
+          },
+        },
+      },
+      take: parseInt(req.query.limit),
+      skip: parseInt(req.query.skip),
+      orderBy: sort,
     });
-    res.status(200).send({ success: true, message: req.user.tasks });
+    res.status(200).send({ success: true, message: tasks });
   } catch (error) {
     res.status(400).send({ success: false, message: error.message });
   }
@@ -35,10 +43,17 @@ const getTask = async (req, res) => {
   const _id = req.params.id;
 
   try {
-    const task = await Task.findOne({ _id, owner: req.user._id });
-    await task.populate("owner");
+    const task = await prisma.tasks.findMany({
+      where: {
+        id: _id,
+        owner: req.user.id,
+      },
+      include: {
+        user: true,
+      },
+    });
 
-    if (!task) {
+    if (task.length === 0) {
       return res
         .status(404)
         .send({ success: false, message: "Couldn't fetch task!" });
@@ -51,14 +66,15 @@ const getTask = async (req, res) => {
 };
 
 const postTask = async (req, res) => {
-  const task = new Task({
-    ...req.body,
-    owner: req.user._id,
-  });
+  const task = { ...req.body, owner: req.user.id };
+  console.log(task);
 
   try {
-    await task.save();
-    res.status(201).send({ success: true, message: task });
+    const taskCreated = await prisma.tasks.create({
+      data: task,
+    });
+
+    res.status(201).send({ success: true, message: taskCreated });
   } catch (error) {
     res.status(400).send({ success: false, message: error.message });
   }
@@ -72,25 +88,43 @@ const updateTask = async (req, res) => {
   );
 
   if (!isValidOperation) {
-    return res.status(400).send({ success: false, message: "Invalid message" });
+    return res
+      .status(400)
+      .send({ success: false, message: "Invalid updates!" });
   }
 
   try {
-    const task = await Task.findOne({
-      _id: req.params.id,
-      owner: req.user._id,
+    const task = await prisma.tasks.findMany({
+      where: {
+        id: req.params.id,
+        owner: req.user.id,
+      },
     });
 
-    if (!task) {
+    if (task.length === 0) {
       return res
         .status(400)
-        .send({ success: false, message: "Couldn't fetch tasks!" });
+        .send({ success: false, message: "Couldn't find task" });
     }
 
-    updates.forEach((update) => (task[update] = req.body[update]));
-    await task.save();
+    let completed: boolean;
+    if (req.body.completed != undefined) {
+      completed = req.body.completed;
+    } else {
+      completed = task[0].completed;
+    }
 
-    res.status(201).send({ success: true, message: task });
+    const udpatedTask = await prisma.tasks.update({
+      where: {
+        id: req.params.id,
+      },
+      data: {
+        completed,
+        description: req.body.description || task[0].description,
+      },
+    });
+
+    res.status(201).send({ success: true, message: udpatedTask });
   } catch (error) {
     res.status(400).send({ success: false, message: error.message });
   }
@@ -98,16 +132,24 @@ const updateTask = async (req, res) => {
 
 const deleteTask = async (req, res) => {
   try {
-    const task = await Task.findOneAndDelete({
-      _id: req.params.id,
-      owner: req.user._id,
+    const task = await prisma.tasks.findFirst({
+      where: {
+        id: req.params.id,
+        owner: req.user.id,
+      },
     });
 
     if (!task) {
       return res
         .status(404)
-        .send({ success: false, message: "Couldn't fetch task!" });
+        .send({ success: false, message: "Couldn't find task!" });
     }
+
+    await prisma.tasks.delete({
+      where: {
+        id: task.id,
+      },
+    });
 
     res.status(200).send({ success: true, message: task });
   } catch (error) {

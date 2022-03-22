@@ -1,6 +1,7 @@
 import express from "express";
+import "dotenv/config";
 
-import "./db/mongoose";
+// import "./db/mongoose";
 
 import { authRouter, userRouter, taskRouter } from "./routes/v1/index";
 

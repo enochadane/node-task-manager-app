@@ -30,8 +30,8 @@ router.delete("/me", auth, deleteUser);
 //   }
 // );
 
-router.delete("/me/avatar", auth, deleteImage);
+router.get("/me/avatar", auth, getImage);
 
-router.get("/:id/avatar", getImage);
+router.delete("/me/avatar", auth, deleteImage);
 
 export default router;
