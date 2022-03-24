@@ -126,7 +126,9 @@ const deleteUser = async (req, res) => {
       },
     });
 
-    await unlinkAsync(req.user.avatar);
+    if (req.user.avatar) {
+      await unlinkAsync(req.user.avatar);
+    }
 
     sendCancelationEmail(req.user.email, req.user.name);
     res.status(200).send({ success: true, message: req.user });
@@ -177,7 +179,9 @@ const deleteImage = async (req, res) => {
       },
     });
 
-    await unlinkAsync(req.user.avatar);
+    if (req.user.avatar) {
+      await unlinkAsync(req.user.avatar);
+    }
 
     res.status(200).send({ success: true, message: user });
   } catch (e) {

@@ -13,7 +13,7 @@ const signUp = async (req: Request, res: Response) => {
     ...req.body,
     age: parseInt(req.body.age),
     password,
-    avatar: req.file.path,
+    avatar: req.file?.path,
   };
 
   try {

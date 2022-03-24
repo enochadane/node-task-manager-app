@@ -1,66 +1,78 @@
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
+import { PrismaClient } from "@prisma/client";
 
-import User from "../../src/models/user";
-import Task from "../../src/models/task";
+import { ObjectId } from "mongodb";
 
-jest.setTimeout(200000);
+jest.setTimeout(100000);
 
-const userId = new mongoose.Types.ObjectId();
-const userTwoId = new mongoose.Types.ObjectId();
+const prisma = new PrismaClient();
+const userId = new ObjectId();
+const userTwoId = new ObjectId();
 
 const sampleUser = {
-  _id: userId,
-  name: "sample user",
-  email: "sample@user.com",
+  id: userId.toString(),
+  name: "prisma client",
+  age: 22,
+  email: "prisma@user.com",
   password: "test1234",
   tokens: [
     {
       token: jwt.sign({ _id: userId }, process.env.JWT_SECRET),
+      id: new ObjectId().toString(),
     },
-  ],
+  ] as any,
 };
 
 const userTwo = {
-  _id: userTwoId,
+  id: userTwoId.toString(),
   name: "usertwo",
+  age: 23,
   email: "two@user.com",
   password: "test1234",
   tokens: [
     {
       token: jwt.sign({ _id: userTwoId }, process.env.JWT_SECRET),
+      id: new ObjectId().toString(),
     },
-  ],
+  ] as any,
 };
 
 const taskOne = {
-  _id: new mongoose.Types.ObjectId(),
+  id: new ObjectId().toString(),
   description: "task one",
   completed: false,
-  owner: userId,
+  owner: userId.toString(),
 };
 
 const taskTwo = {
-  _id: new mongoose.Types.ObjectId(),
+  id: new ObjectId().toString(),
   description: "task two",
   completed: true,
-  owner: userId,
+  owner: userId.toString(),
 };
 
 const taskThree = {
-  _id: new mongoose.Types.ObjectId(),
+  id: new ObjectId().toString(),
   description: "task three",
   completed: true,
-  owner: userTwoId,
+  owner: userTwoId.toString(),
 };
 
 const setupDatabase = async () => {
-  await User.deleteMany();
-  await Task.deleteMany();
-  await new User(sampleUser).save();
-  await new Task(taskOne).save();
-  await new Task(taskTwo).save();
-  await new Task(taskThree).save();
+  await prisma.tasks.deleteMany({});
+  await prisma.users.deleteMany({});
+  await prisma.users.create({
+    data: sampleUser,
+  });
+  await prisma.tasks.create({
+    data: taskOne,
+  });
+  await prisma.tasks.create({
+    data: taskTwo,
+  });
+  await prisma.tasks.create({
+    data: taskThree,
+  });
 };
 
 export {

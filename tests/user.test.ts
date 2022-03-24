@@ -1,8 +1,10 @@
 import request from "supertest";
+import { PrismaClient } from "@prisma/client";
 
 import { userId, sampleUser, setupDatabase } from "./fixtures/db";
 import app from "../src/app";
-import User from "../src/models/user";
+
+const prisma = new PrismaClient();
 
 beforeEach(setupDatabase);
 
@@ -13,12 +15,16 @@ test("Should signup a new user", async () => {
       name: "Enoch",
       email: "enoch@test.com",
       password: "test1234",
-      age: 22
+      age: 22,
     })
     .expect(201);
 
   // Assert that the database was changed correctly
-  const user = await User.findById(response.body.user._id);
+  const user = await prisma.users.findUnique({
+    where: {
+      id: response.body._id,
+    },
+  });
   expect(user).not.toBeNull();
 
   // Assertions about the response
@@ -27,7 +33,7 @@ test("Should signup a new user", async () => {
       name: "Enoch",
       email: "enoch@test.com",
     },
-    // token: user.tokens[0].token,
+    token: user.tokens[0].token,
   });
 
   expect(user.password).not.toBe("test1234");
@@ -42,7 +48,11 @@ test("Should signin an existing user", async () => {
     })
     .expect(200);
 
-  const user = await User.findById(userId);
+  const user = await prisma.users.findUnique({
+    where: {
+      id: userId.toString(),
+    },
+  });
 
   expect(user).not.toBeNull();
 
@@ -51,7 +61,7 @@ test("Should signin an existing user", async () => {
       name: sampleUser.name,
       email: sampleUser.email,
     },
-    // token: user.tokens[1].token,
+    token: user.tokens[1].token,
   });
 });
 
@@ -84,7 +94,11 @@ test("Should delete account for authenticated user", async () => {
     .send()
     .expect(200);
 
-  const user = await User.findById(response.body._id);
+  const user = await prisma.users.findUnique({
+    where: {
+      id: response.body._id,
+    },
+  });
 
   expect(user).toBeNull();
 });
@@ -116,7 +130,11 @@ test("Should update valid user fields", async () => {
     .send(updateUser)
     .expect(201);
 
-  const user = await User.findById(userId);
+  const user = await prisma.users.findUnique({
+    where: {
+      id: userId.toString(),
+    },
+  });
 
   expect(user.name).toEqual(updateUser.name);
   expect(user.email).toEqual(updateUser.email);

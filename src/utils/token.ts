@@ -12,20 +12,20 @@ export const generateAuthToken = async (payload: any, tokens: any) => {
 
   const user = await prisma.users.findUnique({
     where: {
-      id: payload._id
-    }
-  })
+      id: payload._id,
+    },
+  });
 
-  user.tokens.push({id: _id.toString(), token})
+  user.tokens.push({ id: _id.toString(), token });
 
   await prisma.users.update({
     where: {
-      id: user.id
+      id: user.id,
     },
     data: {
       tokens: user.tokens,
-    }
-  })
+    },
+  });
 
   return token;
 };

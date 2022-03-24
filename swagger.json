@@ -1,0 +1,458 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Task Manager",
+        "description": "Task Manager API",
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        }
+    },
+    "host": "localhost:3000",
+    "basePath": "/api/v1",
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "auth API"
+        }
+    ],
+    "schemes": ["http"],
+    "produces": ["application/json"],
+    "paths": {
+        "/auth/signUp":{
+            "post": {
+                "tags": ["Auth"],
+                "summary": "Creates a new user",
+                "consumes": ["multipart/form-data"],
+                "parameters": [
+                    {
+                        "in": "formData",
+                        "name": "avatar",
+                        "type": "file"
+                    },
+                    {
+                        "in": "formData",
+                        "name": "email",
+                        "type": "string"
+                    },
+                    {
+                        "in": "formData",
+                        "name": "password",
+                        "type": "string"
+                    },
+                    {
+                        "in": "formData",
+                        "name": "age",
+                        "type": "integer"
+                    },
+                    {
+                        "in": "formData",
+                        "name": "name",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User created.",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/signIn": {
+            "post": {
+                "tags": ["Auth"],
+                "summary": "Signs the user in.",
+                "consumes":["application/json"],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "user",
+                        "description": "The user to signin.",
+                        "schema": {
+                            "$ref": "#/definitions/UserSignIn"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User Signed In."
+                    }
+                }
+            }
+        },
+        "/auth/signOut": {
+            "post":{
+                "tags":["Auth"],
+                "summary":"Signs the user out.",
+                "consumes":["application/json"],
+                "parameters":[
+                    {
+                        "in": "header",
+                        "name": "Authorization"
+                    }
+                ],
+                "responses":{
+                    "200": {
+                        "description": "User Signed Out."
+                    }
+                }
+            }
+        },
+        "/auth/signOutAll": {
+            "post": {
+                "tags":["Auth"],
+                "summary":"Signs the user out of all sessions.",
+                "consumes":["application/json"],
+                "parameters":[
+                    {
+                        "in": "header",
+                        "name": "Authorization"
+                    }
+                ],
+                "responses":{
+                    "200": {
+                        "description": "User Signed Out of all sessions."
+                    }
+                }
+            }
+        },
+        "/users/me": {
+            "get":{
+                "tags":["Users"],
+                "summary":"Returns profile of the authenticated user.",
+                "consumes":["application/json"],
+                "parameters":[
+                    {
+                        "in":"header",
+                        "name":"Authorization"
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"User profile returned."
+                    }
+                }
+            },
+            "patch":{
+                "tags":["Users"],
+                "summary":"Updates valid fields of profile for the authenticated user.",
+                "consumes":["application/json"],
+                "parameters":[
+                    {
+                        "in":"header",
+                        "name":"Authorization"
+                    },
+                    {
+                        "in":"body",
+                        "name":"user",
+                        "description":"User with new values of properties.",
+                        "schema":{
+                            "$ref":"#/definitions/updateUser"
+                        }
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"User is Updated",
+                        "schema":{
+                            "$ref":"#/definitions/User"
+                        }
+                    }
+                }
+            },
+            "delete":{
+                "tags":["Users"],
+                "summary":"Deletes user account.",
+                "consumes":["application/json"],
+                "parameters":[
+                    {
+                        "in":"header",
+                        "name":"Authorization"
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"User account is deleted.",
+                        "schema":{
+                            "$ref":"#/definitions/User"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}":{
+            "get":{
+                "tags":["Users"],
+                "summary":"Returns the user with specified Id",
+                "parameters":[
+                    {
+                        "in":"header",
+                        "name":"Authorization"
+                    },
+                    {
+                        "in":"path",
+                        "name":"id",
+                        "required":true,
+                        "description":"Id of specified user."
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"User profile with the specified Id returned.",
+                        "schema":{
+                            "$ref":"#/definitions/User"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me/avatar":{
+            "get":{
+                "tags":["Users"],
+                "summary":"Get profile picture of the signed in user.",
+                "consumes":["application/json"],
+                "parameters":[
+                    {
+                        "in":"header",
+                        "name":"Authorization"
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"User's profile picture returned.",
+                        "type":"file"
+                    }
+                }
+            },
+            "delete":{
+                "tags":["Users"],
+                "summary":"Delete profile picture of the signed in user.",
+                "consumes":["application/json"],
+                "parameters":[
+                    {
+                        "in":"header",
+                        "name":"Authorization"
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"User's profile picture returned.",
+                        "schema":{
+                            "$ref":"#/definitions/User"
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks": {
+            "get": {
+                "tags": ["Tasks"],
+                "summary": "get all tasks of a user",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization"
+                    },
+                    {
+                        "in": "query",
+                        "name": "take",
+                        "type": "integer",
+                        "description": "The number of tasks to return"
+                    },
+                    {
+                        "in": "query",
+                        "name": "skip",
+                        "type": "integer",
+                        "description": "The number of tasks to skip before starting to collect the result set"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Tasks"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Tasks"],
+                "summary": "Add task to tasks",
+                "description": "Create new task for authorized user",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization"
+                    },
+                    {
+                        "in": "body",
+                        "name": "task",
+                        "description": "task description",
+                        "schema": {
+                            "$ref": "#/definitions/Task"
+                        }
+                    }
+                ],
+                "produces": ["application/json"],
+                "responses": {
+                    "201": {
+                        "description": "New task is added",
+                        "schema": {
+                            "$ref": "#/definitions/Task"
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks/{id}": {
+            "parameters": [
+                {
+                    "in": "path",
+                    "name": "id",
+                    "required": true,
+                    "description": "ID of specified task"
+                }
+            ],
+            "get":{
+                "tags":["Tasks"],
+                "summary": "Get task with given Id created by the user",
+                "parameters":[
+                    {
+                        "in":"header",
+                        "name":"Authorization"
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"Task with specified Id returned",
+                        "schema":{
+                            "$ref":"#/definitions/Task"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "summary": "Update task with given ID",
+                "tags": ["Tasks"],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization"
+                    },
+                    {
+                        "in": "body",
+                        "name": "task",
+                        "description": "Task with new values of properties",
+                        "schema": {
+                            "$ref": "#/definitions/updateTask"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Task is updated",
+                        "schema": {
+                            "$ref": "#/definitions/Task"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete task with given ID",
+                "tags": ["Tasks"],
+                "parameters":[
+                    {
+                        "in": "header",
+                        "name": "Authorization"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Task is deleted",
+                        "schema": {
+                            "$ref": "#/definitions/Task"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "UserSignIn": {
+            "type": "object",
+            "required": ["email", "password"],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "User": {
+            "type": "object",
+            "required": ["email", "password", "age", "name"],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "age": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "updateUser":{
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "age": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "Task": {
+            "required": ["description", "completed"],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "completed": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "Tasks": {
+            "type": "array",
+            "$ref": "#/definitions/Task"
+        },
+        "updateTask": {
+            "properties":{
+                "description": {
+                    "type": "string"
+                },
+                "completed": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

@@ -29,8 +29,8 @@ const getTasks = async (req, res) => {
           },
         },
       },
-      take: parseInt(req.query.limit),
-      skip: parseInt(req.query.skip),
+      take: parseInt(req.query.limit || '10'),
+      skip: parseInt(req.query.skip || '0'),
       orderBy: sort,
     });
     res.status(200).send({ success: true, message: tasks });

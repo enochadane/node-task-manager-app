@@ -1,7 +1,7 @@
 import request from "supertest";
+import { PrismaClient } from "@prisma/client";
 
 import app from "../src/app";
-import Task from "../src/models/task";
 import {
   userId,
   sampleUser,
@@ -12,6 +12,8 @@ import {
   taskThree,
   setupDatabase,
 } from "./fixtures/db";
+
+const prisma = new PrismaClient();
 
 beforeEach(setupDatabase);
 
@@ -24,7 +26,11 @@ test("Should create task for user", async () => {
     })
     .expect(201);
 
-  const task = await Task.findById(response.body._id);
+  const task = await prisma.tasks.findUnique({
+    where: {
+      id: response.body._id,
+    },
+  });
   expect(task).not.toBeNull();
   expect(task.completed).toEqual(false);
 });
@@ -41,12 +47,15 @@ test("Should return tasks created by the user", async () => {
 
 test("Should fail to delete other users task", async () => {
   await request(app)
-    .delete(`/api/v1/tasks/${taskOne._id}`)
-    .set("Authorization", `Bearer ${userTwo._id}`)
+    .delete(`/api/v1/tasks/${taskOne.id}`)
+    .set("Authorization", `Bearer ${userTwo.tokens[0].token}`)
     .send()
     .expect(401);
 
-  const task = Task.findById(taskOne._id);
+  const task = prisma.tasks.findUnique({
+    where: {
+      id: taskOne.id,
+    },
+  });
   expect(task).not.toBeNull();
 });
-
