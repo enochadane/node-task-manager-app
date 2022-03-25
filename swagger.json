@@ -17,7 +17,7 @@
             "description": "auth API"
         }
     ],
-    "schemes": ["https"],
+    "schemes": ["http","https"],
     "produces": ["application/json"],
     "paths": {
         "/auth/signUp":{
