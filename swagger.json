@@ -9,7 +9,7 @@
             "url": "https://opensource.org/licenses/MIT"
         }
     },
-    "host": "https://enoch-task-manager.herokuapp.com",
+    "host": "enoch-task-manager.herokuapp.com",
     "basePath": "/api/v1",
     "tags": [
         {
@@ -17,7 +17,7 @@
             "description": "auth API"
         }
     ],
-    "schemes": ["http","https"],
+    "schemes": ["https","http"],
     "produces": ["application/json"],
     "paths": {
         "/auth/signUp":{
