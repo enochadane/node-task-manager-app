@@ -4,14 +4,14 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "dev": "nodemon src/server.ts",
     "build": "tsc -p .",
     "postinstall": "npm run build",
     "test": "jest --watch --runInBand"
   },
   "engines": {
-    "node": "^14.17.5"
+    "node": ">=14.17.5"
   },
   "keywords": [],
   "author": "",

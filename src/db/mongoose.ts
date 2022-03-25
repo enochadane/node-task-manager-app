@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import configs from "../config/config";
+// import mongoose from "mongoose";
+// import configs from "../config/config";
 
-mongoose
-  .connect(configs.MONGO_URI, {})
-  .then(() => console.log("Connected!"))
-  .catch((e) => console.log(e));
+// mongoose
+//   .connect(configs.MONGO_URI, {})
+//   .then(() => console.log("Connected!"))
+//   .catch((e) => console.log(e));
