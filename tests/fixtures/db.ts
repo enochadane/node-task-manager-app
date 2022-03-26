@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 import { ObjectId } from "mongodb";
 
-jest.setTimeout(100000);
+jest.setTimeout(20000);
 
 const prisma = new PrismaClient();
 const userId = new ObjectId();
