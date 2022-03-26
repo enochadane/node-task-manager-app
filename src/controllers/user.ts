@@ -3,43 +3,25 @@ import { promisify } from "util";
 
 import { PrismaClient } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
+import { Request, Response } from "express";
 
 import { sendCancelationEmail } from "../helpers/emails/account";
 
 const unlinkAsync = promisify(fs.unlink);
 const prisma = new PrismaClient();
 
-const viewProfile = async (req, res) => {
-  const user = await prisma.users.findUnique({
-    where: {
-      id: req.user.id,
-    },
-    include: {
-      tasks: {
-        select: {
-          completed: true,
-          description: true,
-        },
-      },
-    },
-  });
-
-  if (req.user) {
-    return res.status(200).send({ success: true, message: user });
-  }
-
-  res.status(401).send({ success: false, message: "Unauthorized access!" });
-};
-
-const getUser = async (req, res) => {
-  const _id = req.params.id;
-
+const viewProfile = async (req: Request, res: Response) => {
   try {
     const user = await prisma.users.findUnique({
       where: {
-        id: _id,
+        id: req["user"].id,
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        age: true,
+        password: false,
         tasks: {
           select: {
             completed: true,
@@ -50,18 +32,60 @@ const getUser = async (req, res) => {
     });
 
     if (!user) {
-      return res
-        .status(400)
-        .send({ success: false, message: "Couldn't find user!" });
+      throw new Error("Unauthorized access!");
     }
 
-    res.status(200).send({ success: true, message: user });
+    res
+      .status(200)
+      .send({
+        success: true,
+        message: "user profile fetched successfully!",
+        data: user,
+      });
+  } catch (error) {
+    res.status(401).send({ success: false, message: error.message });
+  }
+};
+
+const getUser = async (req: Request, res: Response) => {
+  const _id = req.params.id;
+
+  try {
+    const user = await prisma.users.findUnique({
+      where: {
+        id: _id,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        age: true,
+        tasks: {
+          select: {
+            completed: true,
+            description: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new Error("User not found!");
+    }
+
+    res
+      .status(200)
+      .send({
+        success: true,
+        message: "user data fetched successfully!",
+        data: user,
+      });
   } catch (error) {
     res.status(400).send({ success: false, message: error.message });
   }
 };
 
-const updateUser = async (req, res) => {
+const updateUser = async (req: Request, res: Response) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["name", "email", "password", "age"];
 
@@ -82,7 +106,7 @@ const updateUser = async (req, res) => {
 
     const userData = await prisma.users.findUnique({
       where: {
-        id: req.user.id,
+        id: req["user"].id,
       },
     });
 
@@ -96,7 +120,7 @@ const updateUser = async (req, res) => {
 
     const user = await prisma.users.update({
       where: {
-        id: req.user.id,
+        id: userData.id,
       },
       data: {
         password,
@@ -104,34 +128,58 @@ const updateUser = async (req, res) => {
         email,
         name,
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        age: true,
+      },
     });
 
-    res.status(201).send({ success: true, message: user });
+    res
+      .status(201)
+      .send({
+        success: true,
+        message: "user data updated successfully!",
+        data: user,
+      });
   } catch (error) {
     res.status(400).send({ success: true, message: error.message });
   }
 };
 
-const deleteUser = async (req, res) => {
+const deleteUser = async (req: Request, res: Response) => {
   try {
     await prisma.tasks.deleteMany({
       where: {
-        owner: req.user.id,
+        owner: req["user"].id,
       },
     });
 
-    await prisma.users.delete({
+    const deletedUser = await prisma.users.delete({
       where: {
-        id: req.user.id,
+        id: req["user"].id,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        age: true,
       },
     });
 
-    if (req.user.avatar) {
-      await unlinkAsync(req.user.avatar);
+    if (req["user"].avatar) {
+      await unlinkAsync(req["user"].avatar);
     }
 
-    sendCancelationEmail(req.user.email, req.user.name);
-    res.status(200).send({ success: true, message: req.user });
+    sendCancelationEmail(deletedUser.email, deletedUser.name);
+    res
+      .status(200)
+      .send({
+        success: true,
+        message: "user deleted successfylly!",
+        data: deletedUser,
+      });
   } catch (error) {
     res.status(400).send({ success: false, message: error.message });
   }
@@ -148,42 +196,57 @@ const deleteUser = async (req, res) => {
 //   res.status(200).send("File uploaded successfully!");
 // };
 
-const getImage = async (req, res) => {
+const getImage = async (req: Request, res: Response) => {
   try {
     const user = await prisma.users.findUnique({
       where: {
-        id: req.user.id,
+        id: req["user"].id,
       },
     });
 
     if (!user || !user.avatar) {
-      throw new Error();
+      throw new Error("image not found!");
     }
 
     res.set("Content-Type", "image/png");
 
-    res.status(200).send({ success: true, message: user.avatar });
+    res
+      .status(200)
+      .send({
+        success: true,
+        message: "user image fetched successfully!",
+        data: user.avatar,
+      });
   } catch (e) {
     res.status(400).send({ success: false, message: e.message });
   }
 };
 
-const deleteImage = async (req, res) => {
+const deleteImage = async (req: Request, res: Response) => {
   try {
     const user = await prisma.users.update({
       where: {
-        id: req.user.id,
+        id: req["user"].id,
       },
       data: {
-        avatar: "",
+        avatar: null,
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        age: true,
+        avatar: true
+      }
     });
 
-    if (req.user.avatar) {
-      await unlinkAsync(req.user.avatar);
+    if (!user || !user.avatar) {
+      throw new Error("image not found!");
     }
 
-    res.status(200).send({ success: true, message: user });
+    await unlinkAsync(user.avatar);
+
+    res.status(200).send({ success: true, message: 'image deleted successfully', data: user });
   } catch (e) {
     res.status(400).send({ success: false, message: e.message });
   }

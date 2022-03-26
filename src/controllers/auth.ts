@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, users } from "@prisma/client";
 
 import { sendWelcomeEmail } from "../helpers/emails/account";
 import { generateAuthToken } from "../utils/token";
@@ -9,27 +9,38 @@ const prisma = new PrismaClient();
 
 const signUp = async (req: Request, res: Response) => {
   const password = await bcrypt.hash(req.body.password, 8);
-  const user: any = {
+  const user: users = {
     ...req.body,
     age: parseInt(req.body.age),
     password,
-    avatar: req.file?.path,
   };
 
   try {
-    const userObject = await prisma.users.create({
+    const createdUser = await prisma.users.create({
       data: user,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        age: true,
+      },
     });
-    
-    sendWelcomeEmail(user.email, user.name);
-    
+
+    sendWelcomeEmail(createdUser.email, createdUser.name);
+
     const payload = {
-      _id: userObject.id,
+      _id: createdUser.id,
     };
-    
-    const token = await generateAuthToken(payload, userObject.tokens);
-    
-    res.status(201).send({ success: true, message: { user, token } });
+
+    const token = await generateAuthToken(payload);
+
+    res
+      .status(201)
+      .send({
+        success: true,
+        message: "user created successfully!",
+        data: { createdUser, token },
+      });
   } catch (error) {
     res.status(400).send({ success: false, message: error.message });
   }
@@ -38,7 +49,7 @@ const signUp = async (req: Request, res: Response) => {
 const signIn = async (req: Request, res: Response) => {
   try {
     const email = req.body.email;
-    const user: any = await prisma.users.findUnique({
+    const user = await prisma.users.findUnique({
       where: {
         email,
       },
@@ -56,52 +67,82 @@ const signIn = async (req: Request, res: Response) => {
     if (!isMatch) {
       throw new Error("Login Failed!");
     }
-
-    const token = await generateAuthToken({ _id: user.id }, user.tokens);
     
-    res.status(200).send({ success: true, message: { user, token } });
+    const userId = user.id;
+    const userName = user.name;
+    const userEmail = user.email;
+    const userAge = user.age;
+
+    const signedInUser = {
+      userId,
+      userName,
+      userEmail,
+      userAge
+    }
+    
+    const token = await generateAuthToken({ _id: user.id });
+
+    res
+      .status(200)
+      .send({
+        success: true,
+        message: "user signed in successfylly",
+        data: { signedInUser, token },
+      });
   } catch (error) {
     res.status(400).send({ success: false, message: error.message });
   }
 };
 
-const signOut = async (req, res) => {
+const signOut = async (req: Request, res: Response) => {
   try {
-    req.user.tokens = req.user.tokens.filter((token) => {
-      return token.token !== req.token;
+    req["user"].tokens = req["user"].tokens.filter((token) => {
+      return token.token !== req["token"];
     });
 
-    await prisma.users.update({
+    const user = await prisma.users.update({
       where: {
-        id: req.user.id,
+        id: req["user"].id,
       },
       data: {
-        tokens: req.user.tokens,
+        tokens: req["user"].tokens,
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        age: true
+      }
     });
 
-    res.status(200).send({ success: true, message: "User Signed out!" });
+    res
+      .status(200)
+      .send({ success: true, message: "User Signed out!", data: user });
   } catch (e) {
     res.status(401).send({ success: false, message: "Unauthorized access!" });
   }
 };
 
-const signOutAll = async (req, res) => {
+const signOutAll = async (req: Request, res: Response) => {
   try {
-    req.user.tokens = [];
-
-    await prisma.users.update({
+    const user = await prisma.users.update({
       where: {
-        id: req.user.id,
+        id: req["user"].id,
       },
       data: {
         tokens: [],
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        age: true
       },
     });
 
     res
       .status(200)
-      .send({ success: true, message: "Terminated all sessions!" });
+      .send({ success: true, message: "Terminated all sessions!", data: user });
   } catch (e) {
     res.status(401).send({ success: false, message: "Unauthorized access!" });
   }

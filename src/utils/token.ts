@@ -7,7 +7,7 @@ import configs from "../config/config";
 const prisma = new PrismaClient();
 const _id = new mongoose.Types.ObjectId();
 
-export const generateAuthToken = async (payload: any, tokens: any) => {
+export const generateAuthToken = async (payload: any) => {
   const token = jwt.sign({ _id: payload._id }, configs.JWT_SECRET);
 
   const user = await prisma.users.findUnique({

@@ -15,7 +15,6 @@ type UsersTokens {
 
 model tasks {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  v           Int?      @map("__v")
   completed   Boolean   @default(false)
   description String
   user        users     @relation(fields: [owner], references: [id])
@@ -26,7 +25,6 @@ model tasks {
 
 model users {
   id        String        @id @default(auto()) @map("_id") @db.ObjectId
-  v         Int?           @map("__v")
   age       Int
   avatar    String?
   email     String        @unique(map: "email_1")

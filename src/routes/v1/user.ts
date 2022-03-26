@@ -10,15 +10,18 @@ import {
   getImage,
 } from "../../controllers/user";
 
+import validateInputs from "../../validators";
+import { idValidator, updateUserValidator } from "../../validators/user";
+
 const router = Router();
 
-router.get("/me", auth, viewProfile);
+router
+  .route("/me")
+  .get(auth, viewProfile)
+  .patch(auth, validateInputs(updateUserValidator), updateUser)
+  .delete(auth, deleteUser);
 
-router.get("/:id", getUser);
-
-router.patch("/me", auth, updateUser);
-
-router.delete("/me", auth, deleteUser);
+router.route("/:id").get(auth, validateInputs(idValidator), getUser);
 
 // router.post(
 //   "/me/avatar",
@@ -30,8 +33,8 @@ router.delete("/me", auth, deleteUser);
 //   }
 // );
 
-router.get("/me/avatar", auth, getImage);
-
-router.delete("/me/avatar", auth, deleteImage);
+router.route("/me/avatar")
+  .get(auth, getImage)
+  .delete(auth, deleteImage);
 
 export default router;

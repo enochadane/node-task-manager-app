@@ -41,7 +41,7 @@ test("Should return tasks created by the user", async () => {
     .set("Authorization", `Bearer ${sampleUser.tokens[0].token}`)
     .send()
     .expect(200);
-
+  console.log(response.body, 'response body')
   expect(response.body.length).toBe(2);
 });
 

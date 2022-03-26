@@ -9,16 +9,30 @@ import {
   deleteTask,
 } from "../../controllers/task";
 
+import validateInputs from "../../validators";
+import {
+  idValidator,
+  postTaskValidator,
+  updateTaskValidator,
+} from "../../validators/task";
+
 const router = Router();
 
-router.get("/", auth, getTasks);
+router.route("/").get(auth, getTasks);
 
-router.get("/:id", auth, getTask);
+router.route("/:id").get(auth, validateInputs(idValidator), getTask);
 
-router.post("/", auth, postTask);
+router.route("/").post(auth, validateInputs(postTaskValidator), postTask);
 
-router.patch("/:id", auth, updateTask);
+router
+  .route("/:id")
+  .patch(
+    auth,
+    validateInputs(idValidator),
+    validateInputs(updateTaskValidator),
+    updateTask
+  );
 
-router.delete("/:id", auth, deleteTask);
+router.route("/:id").delete(auth, validateInputs(idValidator), deleteTask);
 
 export default router;

@@ -3,15 +3,19 @@ import { Router } from "express";
 import auth from "../../middleware/auth";
 import { signUp, signIn, signOut, signOutAll } from "../../controllers/auth";
 import upload from "../../middleware/multer";
+import validateInputs from "../../validators";
+import { signUpValidator, signInValidator } from "../../validators/auth";
 
 const router = Router();
 
-router.post("/signUp", upload.single("avatar"), signUp);
+router
+  .route("/signup")
+  .post(validateInputs(signUpValidator), upload.single("avatar"), signUp);
 
-router.post("/signIn", signIn);
+router.route("/signin").post(validateInputs(signInValidator), signIn);
 
-router.post("/signOut", auth, signOut);
+router.route("/signout").post(auth, signOut);
 
-router.post("/signOutAll", auth, signOutAll);
+router.route("/signoutall").post(auth, signOutAll);
 
 export default router;

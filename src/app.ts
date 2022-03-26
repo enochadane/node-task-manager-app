@@ -1,6 +1,6 @@
 import express from "express";
 import "dotenv/config";
-const cors = require('cors')
+const cors = require("cors");
 
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger.json";
@@ -10,12 +10,12 @@ import { authRouter, userRouter, taskRouter } from "./routes/v1/index";
 const app = express();
 
 const options = {
-  origin: '*',
+  origin: "*",
   optionSuccessStatus: 200,
-  credentials: true
-}
+  credentials: true,
+};
 
-app.use(cors(options))
+app.use(cors(options));
 
 app.use(express.json({ limit: "2mb" }));
 

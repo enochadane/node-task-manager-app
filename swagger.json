@@ -9,7 +9,6 @@
             "url": "https://opensource.org/licenses/MIT"
         }
     },
-    "host": "enoch-task-manager.herokuapp.com",
     "basePath": "/api/v1",
     "tags": [
         {
@@ -20,36 +19,19 @@
     "schemes": ["https","http"],
     "produces": ["application/json"],
     "paths": {
-        "/auth/signUp":{
+        "/auth/signup":{
             "post": {
                 "tags": ["Auth"],
                 "summary": "Creates a new user",
-                "consumes": ["multipart/form-data"],
+                "consumes": ["application/json"],
                 "parameters": [
                     {
-                        "in": "formData",
-                        "name": "avatar",
-                        "type": "file"
-                    },
-                    {
-                        "in": "formData",
-                        "name": "email",
-                        "type": "string"
-                    },
-                    {
-                        "in": "formData",
-                        "name": "password",
-                        "type": "string"
-                    },
-                    {
-                        "in": "formData",
-                        "name": "age",
-                        "type": "integer"
-                    },
-                    {
-                        "in": "formData",
-                        "name": "name",
-                        "type": "string"
+                        "in": "body",
+                        "name": "user",
+                        "description": "the user to signup",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
                     }
                 ],
                 "responses": {
@@ -62,7 +44,7 @@
                 }
             }
         },
-        "/auth/signIn": {
+        "/auth/signin": {
             "post": {
                 "tags": ["Auth"],
                 "summary": "Signs the user in.",
@@ -84,7 +66,7 @@
                 }
             }
         },
-        "/auth/signOut": {
+        "/auth/signout": {
             "post":{
                 "tags":["Auth"],
                 "summary":"Signs the user out.",
@@ -102,7 +84,7 @@
                 }
             }
         },
-        "/auth/signOutAll": {
+        "/auth/signoutall": {
             "post": {
                 "tags":["Auth"],
                 "summary":"Signs the user out of all sessions.",
@@ -125,10 +107,9 @@
                 "tags":["Users"],
                 "summary":"Returns profile of the authenticated user.",
                 "consumes":["application/json"],
-                "parameters":[
+                "security": [
                     {
-                        "in":"header",
-                        "name":"Authorization"
+                        "bearerAuth": []
                     }
                 ],
                 "responses":{
@@ -141,11 +122,12 @@
                 "tags":["Users"],
                 "summary":"Updates valid fields of profile for the authenticated user.",
                 "consumes":["application/json"],
-                "parameters":[
+                "security": [
                     {
-                        "in":"header",
-                        "name":"Authorization"
-                    },
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters":[
                     {
                         "in":"body",
                         "name":"user",
@@ -168,10 +150,9 @@
                 "tags":["Users"],
                 "summary":"Deletes user account.",
                 "consumes":["application/json"],
-                "parameters":[
+                "security": [
                     {
-                        "in":"header",
-                        "name":"Authorization"
+                        "bearerAuth": []
                     }
                 ],
                 "responses":{
@@ -188,11 +169,12 @@
             "get":{
                 "tags":["Users"],
                 "summary":"Returns the user with specified Id",
-                "parameters":[
+                "security": [
                     {
-                        "in":"header",
-                        "name":"Authorization"
-                    },
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters":[
                     {
                         "in":"path",
                         "name":"id",
@@ -215,10 +197,9 @@
                 "tags":["Users"],
                 "summary":"Get profile picture of the signed in user.",
                 "consumes":["application/json"],
-                "parameters":[
+                "security": [
                     {
-                        "in":"header",
-                        "name":"Authorization"
+                        "bearerAuth": []
                     }
                 ],
                 "responses":{
@@ -232,10 +213,9 @@
                 "tags":["Users"],
                 "summary":"Delete profile picture of the signed in user.",
                 "consumes":["application/json"],
-                "parameters":[
+                "security": [
                     {
-                        "in":"header",
-                        "name":"Authorization"
+                        "bearerAuth": []
                     }
                 ],
                 "responses":{
@@ -252,14 +232,15 @@
             "get": {
                 "tags": ["Tasks"],
                 "summary": "get all tasks of a user",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "parameters": [
                     {
-                        "in": "header",
-                        "name": "Authorization"
-                    },
-                    {
                         "in": "query",
-                        "name": "take",
+                        "name": "limit",
                         "type": "integer",
                         "description": "The number of tasks to return"
                     },
@@ -283,11 +264,12 @@
                 "tags": ["Tasks"],
                 "summary": "Add task to tasks",
                 "description": "Create new task for authorized user",
-                "parameters": [
+                "security": [
                     {
-                        "in": "header",
-                        "name": "Authorization"
-                    },
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
                     {
                         "in": "body",
                         "name": "task",
@@ -320,10 +302,9 @@
             "get":{
                 "tags":["Tasks"],
                 "summary": "Get task with given Id created by the user",
-                "parameters":[
+                "security": [
                     {
-                        "in":"header",
-                        "name":"Authorization"
+                        "bearerAuth": []
                     }
                 ],
                 "responses":{
@@ -338,11 +319,12 @@
             "patch": {
                 "summary": "Update task with given ID",
                 "tags": ["Tasks"],
-                "parameters": [
+                "security": [
                     {
-                        "in": "header",
-                        "name": "Authorization"
-                    },
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
                     {
                         "in": "body",
                         "name": "task",
@@ -364,10 +346,9 @@
             "delete": {
                 "summary": "Delete task with given ID",
                 "tags": ["Tasks"],
-                "parameters":[
+                "security": [
                     {
-                        "in": "header",
-                        "name": "Authorization"
+                        "bearerAuth": []
                     }
                 ],
                 "responses": {
@@ -409,6 +390,10 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "avatar": {
+                    "type": "string",
+                    "example": "base64 string"
                 }
             }
         },
@@ -453,6 +438,12 @@
                     "type": "boolean"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "bearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization"
         }
     }
 }
