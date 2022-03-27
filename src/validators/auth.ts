@@ -34,5 +34,4 @@ export const signInValidator = () => [
     .withMessage("Please, provide a valid email."),
 
   check("password").notEmpty().withMessage("Password should not be empty."),
-  console.log("signin validator running..."),
 ];

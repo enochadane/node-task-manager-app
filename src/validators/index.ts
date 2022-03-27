@@ -16,11 +16,11 @@ const validateInputs =
       }
       return next();
     } catch (err) {
-        return res.status(422).json({
-            success: false,
-            message: err.message
-        })
+      return res.status(422).json({
+        success: false,
+        message: err.message,
+      });
     }
   };
 
-  export default validateInputs;
+export default validateInputs;

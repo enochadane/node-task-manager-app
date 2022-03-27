@@ -4,7 +4,7 @@ export const idValidator = () => [
   param("id")
     .notEmpty()
     .withMessage("Id should be passed as params")
-    .isHexadecimal()
+    .isMongoId()
     .withMessage("Invalid Object Id."),
 ];
 

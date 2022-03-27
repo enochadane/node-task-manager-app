@@ -34,13 +34,11 @@ const signUp = async (req: Request, res: Response) => {
 
     const token = await generateAuthToken(payload);
 
-    res
-      .status(201)
-      .send({
-        success: true,
-        message: "user created successfully!",
-        data: { createdUser, token },
-      });
+    res.status(201).send({
+      success: true,
+      message: "user created successfully!",
+      data: { createdUser, token },
+    });
   } catch (error) {
     res.status(400).send({ success: false, message: error.message });
   }
@@ -67,7 +65,7 @@ const signIn = async (req: Request, res: Response) => {
     if (!isMatch) {
       throw new Error("Login Failed!");
     }
-    
+
     const userId = user.id;
     const userName = user.name;
     const userEmail = user.email;
@@ -77,20 +75,18 @@ const signIn = async (req: Request, res: Response) => {
       userId,
       userName,
       userEmail,
-      userAge
-    }
-    
+      userAge,
+    };
+
     const token = await generateAuthToken({ _id: user.id });
 
-    res
-      .status(200)
-      .send({
-        success: true,
-        message: "user signed in successfylly",
-        data: { signedInUser, token },
-      });
+    res.status(200).send({
+      success: true,
+      message: "user signed in successfylly",
+      data: { signedInUser, token },
+    });
   } catch (error) {
-    res.status(400).send({ success: false, message: error.message });
+    res.status(400).send({ success: false, message: (error as Error).message });
   }
 };
 
@@ -111,8 +107,8 @@ const signOut = async (req: Request, res: Response) => {
         id: true,
         name: true,
         email: true,
-        age: true
-      }
+        age: true,
+      },
     });
 
     res
@@ -136,7 +132,7 @@ const signOutAll = async (req: Request, res: Response) => {
         id: true,
         name: true,
         email: true,
-        age: true
+        age: true,
       },
     });
 

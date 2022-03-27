@@ -77,8 +77,6 @@ const getTask = async (req: Request, res: Response) => {
       },
     });
 
-    console.log(task, "task...");
-
     if (!task || task.length === 0) {
       throw new Error("Task not found!");
     }

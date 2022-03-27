@@ -18,10 +18,10 @@ const router = Router();
 router
   .route("/me")
   .get(auth, viewProfile)
-  .patch(auth, validateInputs(updateUserValidator), updateUser)
+  .patch(auth, validateInputs(updateUserValidator()), updateUser)
   .delete(auth, deleteUser);
 
-router.route("/:id").get(auth, validateInputs(idValidator), getUser);
+router.route("/:id").get(auth, validateInputs(idValidator()), getUser);
 
 // router.post(
 //   "/me/avatar",

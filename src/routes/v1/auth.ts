@@ -10,9 +10,9 @@ const router = Router();
 
 router
   .route("/signup")
-  .post(validateInputs(signUpValidator), upload.single("avatar"), signUp);
+  .post(validateInputs(signUpValidator()), upload.single("avatar"), signUp);
 
-router.route("/signin").post(validateInputs(signInValidator), signIn);
+router.route("/signin").post(validateInputs(signInValidator()), signIn);
 
 router.route("/signout").post(auth, signOut);
 

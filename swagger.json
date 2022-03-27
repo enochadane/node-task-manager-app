@@ -249,6 +249,13 @@
                         "name": "skip",
                         "type": "integer",
                         "description": "The number of tasks to skip before starting to collect the result set"
+                    },
+                    {
+                        "in":"query",
+                        "name":"sortBy",
+                        "type":"string",
+                        "description":"Sort elements by field:value",
+                        "example":"completed:desc"
                     }
                 ],
                 "responses": {
