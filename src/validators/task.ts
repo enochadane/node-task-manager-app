@@ -10,7 +10,6 @@ export const idValidator = () => [
 
 export const postTaskValidator = () => [
   body("description")
-    .optional()
     .notEmpty()
     .withMessage("description should not be empty.")
     .isString()
@@ -23,7 +22,7 @@ export const postTaskValidator = () => [
 ];
 
 export const updateTaskValidator = () => [
-  body("description").isString().withMessage("description should be string."),
+  body("description").optional().isString().withMessage("description should be string."),
 
-  body("completed").isBoolean().withMessage("completed should be boolean."),
+  body("completed").optional().isBoolean().withMessage("completed should be boolean."),
 ];

@@ -1,7 +1,11 @@
 import { check, param } from "express-validator";
 
 export const idValidator = () => [
-  param("id").isHexadecimal().withMessage("Id should be Object Id."),
+  param("id")
+    .notEmpty()
+    .withMessage("Id should not be empty.")
+    .isMongoId()
+    .withMessage("Invalid Object Id."),
 ];
 
 export const updateUserValidator = () => [
@@ -20,5 +24,5 @@ export const updateUserValidator = () => [
     .isLength({ min: 8 })
     .withMessage("Password should not be less than 8 characters."),
 
-  check("age").optional().isNumeric().withMessage("Age should be numeric."),
+  check("age").optional().isInt().withMessage("Age should be numeric."),
 ];
