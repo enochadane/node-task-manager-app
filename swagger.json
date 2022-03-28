@@ -71,10 +71,9 @@
                 "tags":["Auth"],
                 "summary":"Signs the user out.",
                 "consumes":["application/json"],
-                "parameters":[
+                "security": [
                     {
-                        "in": "header",
-                        "name": "Authorization"
+                        "bearerAuth": []
                     }
                 ],
                 "responses":{
@@ -89,10 +88,9 @@
                 "tags":["Auth"],
                 "summary":"Signs the user out of all sessions.",
                 "consumes":["application/json"],
-                "parameters":[
+                "security": [
                     {
-                        "in": "header",
-                        "name": "Authorization"
+                        "bearerAuth": []
                     }
                 ],
                 "responses":{
