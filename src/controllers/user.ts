@@ -208,7 +208,7 @@ const getImage = async (req: Request, res: Response) => {
       throw new Error("image not found!");
     }
 
-    res.set("Content-Type", "image/png");
+    // res.set("Content-Type", "image/png");
 
     res
       .status(200)
